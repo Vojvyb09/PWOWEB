@@ -2,28 +2,16 @@
 'use client';
 
 import { useState } from 'react';
-import { useActionState } from 'react';
-import { useFormStatus } from 'react-dom';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Bot, Eye, EyeOff, AlertCircle } from 'lucide-react';
-import { loginAction } from '@/lib/actions';
+import { Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { validateLogin } from '@/lib/actions';
 import type { LoginState } from '@/lib/actions';
-
-function LoginButton() {
-  const { pending } = useFormStatus();
-  return (
-    <Button type="submit" className="w-full" size="lg" disabled={pending}>
-      {pending ? 'Logging in...' : 'Login'}
-    </Button>
-  );
-}
 
 const PwoLogo = () => (
     <svg
@@ -41,8 +29,25 @@ const PwoLogo = () => (
 
 export default function LoginPage() {
   const [passwordVisible, setPasswordVisible] = useState(false);
-  const initialState: LoginState = { message: null, errors: {} };
-  const [state, dispatch] = useActionState(loginAction, initialState);
+  const [state, setState] = useState<LoginState>({ message: null, errors: {} });
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+    
+    const formData = new FormData(e.currentTarget);
+    const result = validateLogin(formData);
+    
+    setState(result);
+    
+    if (result.message === "Login successful") {
+      router.push('/dashboard');
+    }
+    
+    setIsLoading(false);
+  };
 
   return (
     <div className="w-full lg:grid lg:min-h-screen lg:grid-cols-2">
@@ -71,7 +76,7 @@ export default function LoginPage() {
             <h1 className="text-3xl font-bold">PWO Automation</h1>
             <p className="text-balance text-muted-foreground">Login to the automation system</p>
           </div>
-          <form action={dispatch} className="grid gap-6">
+          <form onSubmit={handleSubmit} className="grid gap-6">
             <div className="grid gap-3">
               <Label htmlFor="email">Username</Label>
               <Input
@@ -137,7 +142,9 @@ export default function LoginPage() {
               </div>
             )}
             
-            <LoginButton />
+            <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+              {isLoading ? 'Logging in...' : 'Login'}
+            </Button>
           </form>
           <div className="mt-4 text-center text-sm text-muted-foreground">
             Secure access to the PWO Automation system.

@@ -1,6 +1,3 @@
-// The directive tells the Next.js runtime that it should only be executed on the server.
-'use server';
-
 /**
  * @fileOverview AI-powered script description generator.
  *
@@ -9,8 +6,7 @@
  * - GenerateScriptDescriptionOutput - The return type for the generateScriptDescription function.
  */
 
-import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 
 const GenerateScriptDescriptionInputSchema = z.object({
   codebase: z
@@ -35,39 +31,28 @@ export type GenerateScriptDescriptionOutput = z.infer<
   typeof GenerateScriptDescriptionOutputSchema
 >;
 
-export async function generateScriptDescription(
+export function generateScriptDescription(
   input: GenerateScriptDescriptionInput
-): Promise<GenerateScriptDescriptionOutput> {
-  return generateScriptDescriptionFlow(input);
-}
-
-const prompt = ai.definePrompt({
-  name: 'generateScriptDescriptionPrompt',
-  input: {schema: GenerateScriptDescriptionInputSchema},
-  output: {schema: GenerateScriptDescriptionOutputSchema},
-  prompt: `You are an AI assistant designed to generate script descriptions.
-
-Based on the provided codebase and manager instructions, create a concise and informative description of the script's functionality.
-
-Codebase:
-\`\`\`
-{{{codebase}}}
-\`\`\`
-
-Instructions:
-{{instructions}}
-
-Description:`,
-});
-
-const generateScriptDescriptionFlow = ai.defineFlow(
-  {
-    name: 'generateScriptDescriptionFlow',
-    inputSchema: GenerateScriptDescriptionInputSchema,
-    outputSchema: GenerateScriptDescriptionOutputSchema,
-  },
-  async input => {
-    const {output} = await prompt(input);
-    return output!;
+): GenerateScriptDescriptionOutput {
+  // Mock AI response for static export
+  const keywords = input.codebase.toLowerCase();
+  let description = "This script handles ";
+  
+  if (keywords.includes('automation')) {
+    description += "automation tasks and workflow management";
+  } else if (keywords.includes('data')) {
+    description += "data processing and analysis";
+  } else if (keywords.includes('report')) {
+    description += "report generation and formatting";
+  } else if (keywords.includes('email')) {
+    description += "email communication and notifications";
+  } else {
+    description += "general operational tasks";
   }
-);
+  
+  if (input.instructions) {
+    description += `. ${input.instructions}`;
+  }
+  
+  return { description };
+}

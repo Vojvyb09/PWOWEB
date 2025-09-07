@@ -34,7 +34,10 @@ export function AiDescriptionGenerator({ script, onApprove }: AiDescriptionGener
     }
 
     try {
-      const result = await generateDescriptionAction({
+      // Simulate AI processing delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const result = generateDescriptionAction({
         codebase: script.codebase,
         instructions: script.managerInstructions,
       });

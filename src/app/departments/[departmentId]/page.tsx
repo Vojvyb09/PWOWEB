@@ -21,6 +21,15 @@ export default function DepartmentScriptsPage({ params }: { params: { department
 
   const departmentScripts = scripts.filter((s) => s.departmentId === params.departmentId);
   const plainDepartments = departments.map(d => ({ id: d.id, name: d.name }));
+  
+  // Create plain department object without functions for client component
+  const plainDepartment = {
+    id: department.id,
+    name: department.name,
+    manager: department.manager,
+    color: department.color,
+    group: department.group
+  };
 
   return (
     <AppLayout>
@@ -31,7 +40,7 @@ export default function DepartmentScriptsPage({ params }: { params: { department
         <DepartmentSelector departments={plainDepartments} defaultDepartmentId={department.id} />
       </PageHeader>
       <DepartmentPageClient 
-        department={department}
+        department={plainDepartment}
         departmentScripts={departmentScripts}
         plainDepartments={plainDepartments}
       />

@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Project } from '@/lib/types';
 import { ProjectCard } from '@/components/project-card';
 import { Skeleton } from '@/components/ui/skeleton';
-import type { Department, Script } from '@/lib/types';
+import type { Script } from '@/lib/types';
 
 const CreateProjectDialog = dynamic(
   () => import('@/components/create-project-dialog').then(mod => mod.CreateProjectDialog),
@@ -18,8 +18,16 @@ const CreateProjectDialog = dynamic(
   }
 );
 
+interface PlainDepartment {
+  id: string;
+  name: string;
+  manager: string;
+  color: string;
+  group: string;
+}
+
 interface DepartmentPageClientProps {
-  department: Department;
+  department: PlainDepartment;
   departmentScripts: Script[];
   plainDepartments: { id: string; name: string }[];
 }
