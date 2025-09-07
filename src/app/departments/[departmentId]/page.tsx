@@ -7,6 +7,12 @@ import { notFound, useParams } from "next/navigation";
 import AppLayout from "@/components/app-layout";
 import { PageHeader } from "@/components/page-header";
 import { departments, scripts } from "@/lib/data";
+
+export async function generateStaticParams() {
+  return departments.map((department) => ({
+    departmentId: department.id,
+  }));
+}
 import { DepartmentSelector } from "@/components/department-selector";
 import { ScriptCard } from "@/components/script-card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

@@ -2,6 +2,22 @@
 import AppLayout from "@/components/app-layout";
 import { PageHeader } from "@/components/page-header";
 import { departments, scripts as initialScripts } from "@/lib/data";
+
+export async function generateStaticParams() {
+  const params = [];
+  
+  for (const department of departments) {
+    const departmentScripts = initialScripts.filter(s => s.departmentId === department.id);
+    for (const script of departmentScripts) {
+      params.push({
+        departmentId: department.id,
+        scriptId: script.id,
+      });
+    }
+  }
+  
+  return params;
+}
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
