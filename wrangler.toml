@@ -1,0 +1,9 @@
+name = "pwo-automation"
+compatibility_date = "2024-01-15"
+pages_build_output_dir = ".next"
+
+[env.production]
+name = "pwo-automation"
+
+[env.preview]
+name = "pwo-automation-preview"

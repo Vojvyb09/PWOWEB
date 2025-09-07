@@ -46,6 +46,8 @@ export function CreateProjectDialog({ departmentId, onProjectCreate }: CreatePro
   const [revisionStartDate, setRevisionStartDate] = useState<Date>();
   const [setSpecificDate, setSetSpecificDate] = useState(false);
   const [open, setOpen] = useState(false);
+  const [dateRangeOpen, setDateRangeOpen] = useState(false);
+  const [keyDateOpen, setKeyDateOpen] = useState<{ [key: number]: boolean }>({});
   const [responsiblePerson, setResponsiblePerson] = useState('');
 
 
@@ -128,8 +130,7 @@ export function CreateProjectDialog({ departmentId, onProjectCreate }: CreatePro
         </div>
         <div className="grid gap-2">
             <Label>Project Duration</Label>
-            <Popover>
-                <PopoverTrigger asChild>
+            <div className="relative">
                 <Button
                     id="projectDuration"
                     variant={"outline"}
@@ -137,6 +138,10 @@ export function CreateProjectDialog({ departmentId, onProjectCreate }: CreatePro
                     "w-full justify-start text-left font-normal",
                     !dateRange && "text-muted-foreground"
                     )}
+                    onClick={() => {
+                        console.log('Date range button clicked');
+                        setDateRangeOpen(!dateRangeOpen);
+                    }}
                 >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {dateRange?.from ? (
@@ -152,18 +157,36 @@ export function CreateProjectDialog({ departmentId, onProjectCreate }: CreatePro
                     <span>Pick a date range</span>
                     )}
                 </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                    initialFocus
-                    mode="range"
-                    defaultMonth={dateRange?.from}
-                    selected={dateRange}
-                    onSelect={setDateRange}
-                    numberOfMonths={2}
-                />
-                </PopoverContent>
-            </Popover>
+                {dateRangeOpen && (
+                    <div className="absolute top-full left-0 mt-2 z-[9999] bg-white border border-gray-300 rounded-lg shadow-xl p-4 w-[700px]">
+                        <div className="flex justify-between items-center mb-3">
+                            <h3 className="text-sm font-semibold text-gray-900">Select Date Range</h3>
+                            <button
+                                onClick={() => setDateRangeOpen(false)}
+                                className="text-gray-400 hover:text-gray-600 text-lg w-6 h-6 flex items-center justify-center rounded hover:bg-gray-100"
+                            >
+                                ×
+                            </button>
+                        </div>
+                        <div className="overflow-hidden">
+                            <Calendar
+                                initialFocus
+                                mode="range"
+                                defaultMonth={dateRange?.from}
+                                selected={dateRange}
+                                onSelect={(range) => {
+                                    setDateRange(range);
+                                    if (range?.from && range?.to) {
+                                        setDateRangeOpen(false);
+                                    }
+                                }}
+                                numberOfMonths={2}
+                                className="rdp-custom"
+                            />
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
         
         <div className="grid gap-4">
@@ -176,28 +199,47 @@ export function CreateProjectDialog({ departmentId, onProjectCreate }: CreatePro
             <div className="space-y-4 max-h-48 overflow-y-auto pr-2">
                 {keyDates.map((kd, index) => (
                     <div key={kd.id} className="flex items-center gap-2">
-                    <Popover>
-                            <PopoverTrigger asChild>
+                        <div className="relative">
                             <Button
                                 variant={"outline"}
                                 className={cn(
                                 "w-[150px] justify-start text-left font-normal",
                                 !kd.date && "text-muted-foreground"
                                 )}
+                                onClick={() => {
+                                    console.log('Key date button clicked:', kd.id);
+                                    setKeyDateOpen(prev => ({ ...prev, [kd.id]: !prev[kd.id] }));
+                                }}
                             >
                                 <CalendarIcon className="mr-2 h-4 w-4" />
                                 {kd.date ? format(kd.date, "PP") : <span>Pick a date</span>}
                             </Button>
-                            </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0">
-                            <Calendar
-                                mode="single"
-                                selected={kd.date}
-                                onSelect={(date) => handleKeyDateChange(kd.id, 'date', date)}
-                                initialFocus
-                            />
-                            </PopoverContent>
-                        </Popover>
+                            {keyDateOpen[kd.id] && (
+                                <div className="absolute top-full left-0 mt-2 z-[9999] bg-white border border-gray-300 rounded-lg shadow-xl p-3 w-[320px]">
+                                    <div className="flex justify-between items-center mb-2">
+                                        <h3 className="text-xs font-semibold text-gray-900">Select Date</h3>
+                                        <button
+                                            onClick={() => setKeyDateOpen(prev => ({ ...prev, [kd.id]: false }))}
+                                            className="text-gray-400 hover:text-gray-600 text-sm w-5 h-5 flex items-center justify-center rounded hover:bg-gray-100"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                    <div className="overflow-hidden">
+                                        <Calendar
+                                            mode="single"
+                                            selected={kd.date}
+                                            onSelect={(date) => {
+                                                handleKeyDateChange(kd.id, 'date', date);
+                                                setKeyDateOpen(prev => ({ ...prev, [kd.id]: false }));
+                                            }}
+                                            initialFocus
+                                            className="rdp-custom"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                         <Input 
                             placeholder={`Milestone ${index + 1} description`}
                             value={kd.description}
